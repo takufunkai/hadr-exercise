@@ -79,7 +79,25 @@ async def agent_loop(
       the model card of the model you are using for the initial value, then tune it
       on your task.
     """
-    raise NotImplementedError("stage 1: build the agentic tool loop")
+    result = LoopResult()
+    messages: list = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+
+    resp = client.chat.completions.create(
+        model=model,
+        max_tokens=max_tokens,
+        messages=messages,
+        temperature=0,
+    )
+    result.usage.add(resp.usage)
+    result.rounds += 1
+
+    msg = resp.choices[0].message
+    result.final = msg.content or ""
+
+    return result
 
 
 # ---- hadr-agent toy tools ---------------------------------------------------
